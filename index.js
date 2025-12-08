@@ -2,7 +2,6 @@ const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const nodemailer = require("nodemailer");
 const fs = require("fs");
 
 const port = process.env.PORT || 5000;
@@ -21,17 +20,6 @@ const pool = new Pool({
 pool.connect()
   .then(() => console.log("Connecté à Neon !"))
   .catch(err => console.error("Erreur de connexion :", err));
-
-// -----------------------------
-// EMAIL TRANSPORT
-// -----------------------------
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "emrissoglo@gmail.com",
-    pass: "lzor dtca jmjc mrwx"
-  }
-});
 
 // -----------------------------
 // INSCRIPTION
@@ -64,15 +52,8 @@ app.post("/api/inscription", async (req, res) => {
       [pseudo, mail, password, code]
     );
 
-    const mailOptions = {
-      from: "emrissoglo@gmail.com",
-      to: mail,
-      subject: "Confirmez votre compte MyENA",
-      html: `<p>Bonjour ${pseudo},</p><p>Voici votre code de confirmation : <b>${code}</b></p>`
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.json({ success: true, message: "Inscription réussie ! Vérifiez votre email.", mail, identifiant });
+    // On renvoie le code pour affichage côté frontend
+    res.json({ success: true, message: "Inscription réussie !", mail, code });
 
   } catch (err) {
     console.error(err);
